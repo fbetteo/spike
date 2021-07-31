@@ -13,6 +13,13 @@ def plot_hist_precipitaciones(df, region=None, ax=None):
     sns.histplot(data=df, x="precipitaciones", ax=ax)
 
 
+def plot_simple_precipitaciones(df, region=None, ax=None):
+    if region:
+        df = df.query('region == @region')
+    df = df.sort_values('date')
+    sns.lineplot(data=df, x="date", y='precipitaciones', ax=ax)
+
+
 def plot_line_precipitaciones(df, region=None, desde=None, hasta=None, ax=None):
     """ Validamos por separado la combinación destino/desde y destino/hasta porque
     puede darse que exista un extremo pero no el otro"""
@@ -27,33 +34,30 @@ def plot_line_precipitaciones(df, region=None, desde=None, hasta=None, ax=None):
         df = df.query(
             'region==@region and date >= @desde and date <= @hasta').sort_values('date')
         sns.lineplot(data=df, x='date', y='precipitaciones', ax=ax)
-        ax.set_title(region)
-        max_tick = max(ax.get_xticks())
-        ax.set_xticks(
-            range(0, max_tick + 1, round(max_tick * 0.05)))
+        ax.set_title(region.replace("_", " "))
 
 
 def plot_precipitaciones_mensuales(df, region=None, years=None, ax=None):
-    """ Validamos por separado la combinación destino/desde y destino/hasta porque
-    puede darse que exista un extremo pero no el otro"""
-    year0 = years[0]
-    year1 = years[1]
-    df['year'] = [int(x[0]) for x in df['date'].str.split("-")]
-    df['month'] = [int(x[1]) for x in df['date'].str.split("-")]
+    """ Validamos que exista la combinación región/año para todos los seleccionados """
+    df['year'] = df.date.dt.year
+    df['month'] = df.date.dt.month
 
-    valid_query_from = any((df.region == region) &
-                           (df.year == year0))
-    valid_query_to = any((df.region == region) &
-                         (df.year == year1))
+    valid = list()
+    for year in years:
+        valid.append(any((df.region == region) &
+                         (df.year == year)))
 
-    if not ((valid_query_from + valid_query_to) == 2):
+    if not (sum(valid) == len(years)):
         print("La región o fechas no son válidas")
     else:
         df = df.query(
             'region==@region and year in @years').sort_values('date')
         sns.lineplot(data=df, x='month',
-                     y='precipitaciones', hue='year', palette="Reds", ax=ax)
-        ax.set_title(region)
+                     y='precipitaciones', hue='year', palette="flare_r", ax=ax)
+        ax.set_title(
+            f'Precipitaciones mensuales a lo largo de los años para {region}')
+        ax.set_xlabel("")
+        ax.set_xticks(range(1, 13))
         ax.set_xticklabels(['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
                             'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'])
 
