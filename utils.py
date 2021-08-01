@@ -63,6 +63,8 @@ def plot_precipitaciones_mensuales(df, region=None, years=None, ax=None):
 
 
 def plot_pbi(df, series, desde, hasta, ax=None):
+    desde = pd.to_datetime(desde)
+    hasta = pd.to_datetime(hasta)
     df = df.query(
         'variable in @series and Periodo >= @desde and Periodo <= @hasta').sort_values('Periodo')
 
