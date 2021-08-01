@@ -10,7 +10,7 @@ def count_na(x):
 def plot_hist_precipitaciones(df, region=None, ax=None):
     if region:
         df = df.query('region == @region')
-    sns.histplot(data=df, x="precipitaciones", ax=ax)
+    sns.histplot(data=df, x="precipitaciones", ax=ax, bins=30)
 
 
 def plot_simple_precipitaciones(df, region=None, ax=None):
@@ -69,4 +69,5 @@ def plot_pbi(df, series, desde, hasta, ax=None):
         'variable in @series and Periodo >= @desde and Periodo <= @hasta').sort_values('Periodo')
 
     sns.lineplot(data=df, x="Periodo", y="valor", hue="variable", ax=ax)
-    ax.set_title(series)
+    ax.set_title(f"Series de tiempo para {series[0]} y {series[1]}")
+    ax.set_xlabel("")
